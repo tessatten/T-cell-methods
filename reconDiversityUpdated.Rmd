@@ -1,0 +1,140 @@
+---
+title: "reconDiversityPlots"
+author: "Tess Attenborough"
+date: "31/03/2020"
+output: html_document
+---
+Here are the packages I need
+
+```{r packages}
+library("ape")
+library("ggplot2")
+library("plyr")
+library("scales")
+library("vegan")
+library("knitr")
+library("dplyr")
+library("praise")
+library("tidyverse")
+library("phyloseq")
+library("Bios2cor")
+library("grid")
+library("ggpubr")
+library("patchwork")
+library("varhandle")
+
+integer_breaks <- function(n = 5, ...) {
+fxn <- function(x) {
+breaks <- floor(pretty(x, n, ...))
+names(breaks) <- attr(breaks, "labels")
+breaks
+}
+return(fxn)
+}
+```
+
+Here I import the data file with the diversity values
+
+```{r data source}
+tcrstats_new_march <- read.csv(file = "TCR_statistics_AUG2020.csv")
+
+tcr_forRecon <- subset(tcrstats_new_march, subset=(tcrstats_new_march$Chain=="beta"))
+#tcr_forRecon <- subset(tcr_forRecon, subset=(tcr_forRecon$Patient.or.control =="Patient"))
+
+estmiatedDataSet <- read.csv(file = "estimatedData_allCBT.csv")
+estmiatedDataSet <- subset(estmiatedDataSet, subset=(estmiatedDataSet$Chain=="beta"))
+
+
+
+class(tcr_forRecon$Month.after.transplant)
+levels(tcr_forRecon$Month.after.transplant)
+str(tcr_forRecon)
+#tcr_forRecon$Number.of.different.CDR3s <- unfactor(tcr_forRecon$Month.after.transplant)
+as.numeric(tcr_forRecon$Number.of.different.CDR3s)
+```
+
+Now I'm going to make plots so I can compare Recon results with raw data and subsampled data
+
+```{r  plot}
+#obs cdr3 with estimated
+p2 = ggplot(tcr_forRecon, aes(x=tcr_forRecon$Month.after.transplant, y=tcr_forRecon$Number.of.different.CDR3s, color=tcr_forRecon$Individual, fill=tcr_forRecon$Individual)) +
+  geom_point(size=8) + labs(title = "", x = "Month after transplant", y = "Number of observed CDR3s", color = "Number of observed") + theme_bw() + theme(
+    plot.title = element_text(color="black", size=26, face="bold"),
+    axis.title.x = element_text(color="black", size=24, face="bold"),
+    axis.title.y = element_text(color="black", size=24, face="bold"),
+    axis.text=element_text(size=22),
+    legend.title = element_text(color = "black", size = 26),
+    legend.text = element_text(color = "black", size = 24)
+  ) + theme(axis.text.x = element_text(angle = 90, hjust = 0.5,size=22)) + guides(fill=FALSE, color = FALSE)+ theme(axis.text.x = element_text(angle = 45, vjust = 0.6))  + geom_smooth(method = "lm", se = FALSE)
+p2
+
+```
+
+```{r}
+#obs cdr3 with estimated
+p3 = ggplot(tcr_forRecon, aes(x=tcr_forRecon$Month.after.transplant, y=tcr_forRecon$Species.plus.estimated.missing, color=tcr_forRecon$Individual, fill=tcr_forRecon$Individual)) +
+  geom_point(size=8) + labs(title = "", x = "Month after transplant", y = "Total estimated number of CDR3s (recorded and estimated)", color = "Number of observed") + theme_bw() + theme(
+    plot.title = element_text(color="black", size=26, face="bold"),
+    axis.title.x = element_text(color="black", size=24, face="bold"),
+    axis.title.y = element_text(color="black", size=24, face="bold"),
+    axis.text=element_text(size=22),
+    legend.title = element_text(color = "black", size = 26),
+    legend.text = element_text(color = "black", size = 24)
+  ) + theme(axis.text.x = element_text(angle = 90, hjust = 0.5,size=22)) + guides(fill=FALSE, color = FALSE)+ theme(axis.text.x = element_text(angle = 45, vjust = 0.6))  + geom_smooth(method = "lm", se = FALSE)
+p3
+```
+
+```{r}
+p2 + aes(x=tcr_forRecon$Month.after.transplant, y=tcr_forRecon$Species.plus.estimated.missing, color=tcr_forRecon$Individual, fill=tcr_forRecon$Individual) +
+  geom_point(size=8) + labs(title = "", x = "Month after transplant", y = "Total estimated number of CDR3s (recorded and estimated)", color = "Number of observed") + theme_bw() + theme(
+    plot.title = element_text(color="black", size=26, face="bold"),
+    axis.title.x = element_text(color="black", size=24, face="bold"),
+    axis.title.y = element_text(color="black", size=24, face="bold"),
+    axis.text=element_text(size=22),
+    legend.title = element_text(color = "black", size = 26),
+    legend.text = element_text(color = "black", size = 24)
+  ) + theme(axis.text.x = element_text(angle = 90, hjust = 0.5,size=22)) + guides(fill=FALSE, color = FALSE)+ theme(axis.text.x = element_text(angle = 45, vjust = 0.6))  + geom_smooth(method = "lm", se = FALSE)
+p4
+```
+```{r}
+#all patients on one plot
+#obs cdr3 with estimated
+p2 = ggplot(estmiatedDataSet, aes(x=estmiatedDataSet$Month.after.transplant, y=estmiatedDataSet$No.CDR3s, color=estmiatedDataSet$Estimated, fill=estmiatedDataSet$Estimated)) +
+  geom_point(size=8) + labs(title = "", x = "Month after transplant", y = "Number of CDR3s", color = "") + theme_bw() + theme(
+    plot.title = element_text(color="black", size=26, face="bold"),
+    axis.title.x = element_text(color="black", size=24, face="bold"),
+    axis.title.y = element_text(color="black", size=24, face="bold"),
+    axis.text=element_text(size=22),
+    legend.title = element_text(color = "black", size = 26),
+    legend.text = element_text(color = "black", size = 24)
+  )  + guides(fill=FALSE)  + geom_smooth(method = "loess", se = FALSE) + scale_color_manual(labels = c("Estimated", "Observed"), values = c("forest green", "dark blue")) + scale_y_continuous(labels = comma)
+p2
+ggsave("obvsVestTogetherUp.pdf", width = 30, height = 20, units = c('cm'))
+```
+
+
+
+```{r}
+# patients separaed by facet plot
+p = ggplot() + 
+  geom_line(data = tcr_forRecon, aes(x = tcr_forRecon$Month.after.transplant, y = tcr_forRecon$Number.of.different.CDR3s), color = "dark blue") +
+  geom_point(data = tcr_forRecon, aes(x = tcr_forRecon$Month.after.transplant, y = tcr_forRecon$Number.of.different.CDR3s), color = "dark blue") +
+  geom_line(data = tcr_forRecon, aes(x = tcr_forRecon$Month.after.transplant, y = tcr_forRecon$Species.plus.estimated.missing), color = "forest green") +
+  geom_point(data = tcr_forRecon, aes(x = tcr_forRecon$Month.after.transplant, y = tcr_forRecon$Species.plus.estimated.missing), color = "forest green") +
+  labs(x = "Month after transplant",
+         y = "Number of CDR3s",
+         color = "Legend") + theme_bw() + facet_wrap(facets = vars(Individual), scales = 'free') + scale_y_continuous(labels = comma) + scale_x_continuous(breaks = integer_breaks())+ theme(legend.position = "right")+ theme(
+    plot.title = element_text(color="black", size=26, face="bold"),
+    axis.title.x = element_text(color="black", size=24, face="bold"),
+    axis.title.y = element_text(color="black", size=24, face="bold"),
+    axis.text=element_text(size=16),
+    legend.title = element_text(color = "black", size = 26),
+    legend.text = element_text(color = "black", size = 24)
+  )   + 
+       theme(strip.text.x = element_text(size = 16))
+
+print(p)
+ggsave("obvsVest2Up.pdf", width = 48, height = 30, units = c('cm'))
+
+```
+
