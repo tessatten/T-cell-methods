@@ -1,0 +1,145 @@
+---
+title: "PENTA 5000 plots"
+author: "Tess Attenborough"
+date: "08/04/2020"
+output: html_document
+---
+
+```{r}
+library("devtools")
+library("ggplot2")
+library("vegan")
+library("ineq")
+library("tidyverse")
+library("praise")
+library("scales")
+library("patchwork")
+
+
+subsampling5000 = read.csv("subsampling5000.csv")  # read csv file
+view(subsampling5000)
+
+QUK_5000_info<- subset(subsampling5000, subset=(subsampling5000$Patient=="QUK"))
+QUL_5000_info<- subset(subsampling5000, subset=(subsampling5000$Patient=="QUL"))
+QUE_5000_info<- subset(subsampling5000, subset=(subsampling5000$Patient=="QUE"))
+
+```
+
+```{r}
+#gini
+p1 = ggplot(QUK_5000_info, aes(x=Week, y=Gini.coefficient, color=Chain, fill=Chain)) +
+  geom_point(size = 8) + theme(axis.title.x = element_text(size=5),
+                               axis.text.x  = element_text(angle=90, vjust=0.5, size=5)) + 
+  geom_line() + labs(title = "QUK: Gini coefficient", x = "Week", y = "Gini coefficient", color = "Chain") +
+  scale_color_manual(labels = c("Alpha", "Beta"), values = c("#E77EA1", "#5FC27D")) +
+  theme_bw() + guides(fill=FALSE)+ theme(
+    plot.title = element_text(color="black", size=24, face="bold"),
+    axis.title.x = element_text(color="black", size=20, face="bold"),
+    axis.title.y = element_text(color="black", size=20, face="bold"),
+    axis.text=element_text(size=20),
+    legend.title = element_text(color = "black", size = 26),
+    legend.text = element_text(color = "black", size = 24)
+  )  +geom_line(aes(group=Chain), size =2) + scale_x_continuous(breaks = integer_breaks())+ coord_cartesian(ylim = c(0, 1))
+p1
+ggsave("QUK_5000_info_gini.pdf", width = 27, height = 20, units = c('cm'))
+
+#shannon
+p4 = ggplot(QUK_5000_info, aes(x=Week, y=Shannon.entropy, color=Chain, fill=Chain)) +
+  geom_point(size = 8) + theme(axis.title.x = element_text(size=5),
+                                axis.text.x  = element_text(angle=90, vjust=0.5, size=5)) + 
+  geom_line() + labs(title = "QUK: Shannon entropy", x = "Week", y = "Shannon entropy", color = "Chain") +
+  scale_color_manual(labels = c("Alpha", "Beta"), values = c("#F0E442", "#56B4E9")) +
+  theme_bw() + guides(fill=FALSE)+ theme(
+    plot.title = element_text(color="black", size=24, face="bold"),
+    axis.title.x = element_text(color="black", size=20, face="bold"),
+    axis.title.y = element_text(color="black", size=20, face="bold"),
+    axis.text=element_text(size=20),
+    legend.title = element_text(color = "black", size = 26),
+    legend.text = element_text(color = "black", size = 24)
+  )+geom_line(aes(group=Chain), size =2) + scale_x_continuous(breaks = integer_breaks())+ coord_cartesian(ylim = c(6, 12))
+p4
+ggsave("QUK_5000_info_shannon.pdf", width = 27, height = 20, units = c('cm'))
+```
+
+```{r}
+#gini
+p2 = ggplot(QUL_5000_info, aes(x=Week, y=Gini.coefficient, color=Chain, fill=Chain)) +
+  geom_point(size = 8) + theme(axis.title.x = element_text(size=5),
+                               axis.text.x  = element_text(angle=90, vjust=0.5, size=5)) + 
+  geom_line() + labs(title = "QUL: Gini coefficient", x = "Week", y = "Gini coefficient", color = "Chain") +
+  scale_color_manual(labels = c("Alpha", "Beta"), values = c("#E77EA1", "#5FC27D")) +
+  theme_bw() + guides(fill=FALSE)+ theme(
+    plot.title = element_text(color="black", size=24, face="bold"),
+    axis.title.x = element_text(color="black", size=20, face="bold"),
+    axis.title.y = element_text(color="black", size=20, face="bold"),
+    axis.text=element_text(size=20),
+    legend.title = element_text(color = "black", size = 26),
+    legend.text = element_text(color = "black", size = 24)
+  )  +geom_line(aes(group=Chain), size =2) + scale_x_continuous(breaks = integer_breaks())+ coord_cartesian(ylim = c(0, 1))
+p2
+ggsave("QUL_5000_info_gini.pdf", width = 27, height = 20, units = c('cm'))
+
+#shannon
+p5 = ggplot(QUL_5000_info, aes(x=Week, y=Shannon.entropy, color=Chain, fill=Chain)) +
+  geom_point(size = 8) + theme(axis.title.x = element_text(size=5),
+                                axis.text.x  = element_text(angle=90, vjust=0.5, size=5)) + 
+  geom_line() + labs(title = "QUL: Shannon entropy", x = "Week", y = "Shannon entropy", color = "Chain") +
+  scale_color_manual(labels = c("Alpha", "Beta"), values = c("#F0E442", "#56B4E9")) +
+  theme_bw() + guides(fill=FALSE)+ theme(
+    plot.title = element_text(color="black", size=24, face="bold"),
+    axis.title.x = element_text(color="black", size=20, face="bold"),
+    axis.title.y = element_text(color="black", size=20, face="bold"),
+    axis.text=element_text(size=20),
+    legend.title = element_text(color = "black", size = 26),
+    legend.text = element_text(color = "black", size = 24)
+  )+geom_line(aes(group=Chain), size =2) + scale_x_continuous(breaks = integer_breaks())+ coord_cartesian(ylim = c(6, 12))
+p5
+ggsave("QUL_5000_info_shannon.pdf", width = 27, height = 20, units = c('cm'))
+```
+
+
+```{r}
+#gini
+p3 = ggplot(QUE_5000_info, aes(x=Week, y=Gini.coefficient, color=Chain, fill=Chain)) +
+  geom_point(size = 8) + theme(axis.title.x = element_text(size=5),
+                               axis.text.x  = element_text(angle=90, vjust=0.5, size=5)) + 
+  geom_line() + labs(title = "QUE: Gini coefficient", x = "Week", y = "Gini coefficient", color = "Chain") +
+  scale_color_manual(labels = c("Alpha", "Beta"), values = c("#E77EA1", "#5FC27D")) +
+  theme_bw() + guides(fill=FALSE)+ theme(
+    plot.title = element_text(color="black", size=24, face="bold"),
+    axis.title.x = element_text(color="black", size=20, face="bold"),
+    axis.title.y = element_text(color="black", size=20, face="bold"),
+    axis.text=element_text(size=20),
+    legend.title = element_text(color = "black", size = 26),
+    legend.text = element_text(color = "black", size = 24)
+  )  +geom_line(aes(group=Chain), size =2) + scale_x_continuous(breaks = integer_breaks())+ coord_cartesian(ylim = c(0, 1))
+p3
+ggsave("QUE_5000_info_gini.pdf", width = 27, height = 20, units = c('cm'))
+
+#shannon
+p6 = ggplot(QUE_5000_info, aes(x=Week, y=Shannon.entropy, color=Chain, fill=Chain)) +
+  geom_point(size = 8) + theme(axis.title.x = element_text(size=5),
+                                axis.text.x  = element_text(angle=90, vjust=0.5, size=5)) + 
+  geom_line() + labs(title = "QUE: Shannon entropy", x = "Week", y = "Shannon entropy", color = "Chain") +
+  scale_color_manual(labels = c("Alpha", "Beta"), values = c("#F0E442", "#56B4E9")) +
+  theme_bw() + guides(fill=FALSE)+ theme(
+    plot.title = element_text(color="black", size=24, face="bold"),
+    axis.title.x = element_text(color="black", size=20, face="bold"),
+    axis.title.y = element_text(color="black", size=20, face="bold"),
+    axis.text=element_text(size=20),
+    legend.title = element_text(color = "black", size = 26),
+    legend.text = element_text(color = "black", size = 24)
+  )+geom_line(aes(group=Chain), size =2) + scale_x_continuous(breaks = integer_breaks())+ coord_cartesian(ylim = c(6, 12))
+p6
+ggsave("QUE_5000_info_shannon.pdf", width = 27, height = 20, units = c('cm'))
+```
+
+```{r}
+
+
+px = p1 + p4 + p2 + p5 + p3 + p6 +
+  plot_layout(guides = 'collect', ncol = 2)
+
+px
+ggsave("Subsampling5000Together.pdf", width = 30, height = 35, units = c('cm'))
+```
